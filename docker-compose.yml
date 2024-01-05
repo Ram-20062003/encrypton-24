@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: backend_db
+    image: postgres:16.1-alpine3.19
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - hack_db:/var/lib/postgresql/data
+    ports:
+      - ${DB_EXTERNAL_PORT}:5432
+  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - ${ADMINER_EXTERNAL_PORT}:8080
+
+  app:
+    container_name: backend_server
+    image: server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports:
+      - ${SERVER_EXTERNAL_PORT}:8000
+    depends_on:
+      - db
+  
+volumes:
+  hack_db:
+    
